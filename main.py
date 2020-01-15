@@ -1,12 +1,12 @@
 import os
 import sys
 
-os.system("pdf2txt -o workpdf.txt -F 1.0 -L 2.0 C:\\Users\\jayma\\OneDrive\\Desktop\\Python\\WorkParser\\test.pdf")
+os.system("pdf2txt -o workpdf.txt -F 1.0 -L 2.0 C:\\Users\\jayma\\OneDrive\\Documents\\GitHub\\WorkParser\\test.pdf")
 
 with open("workpdf.txt","r") as txtfile:
     text = txtfile.read()
 
-splittxt = text.split("Presented By")
+splittxt = text.split("Featured properties")
 
 streetad = list()
 towns = list()
@@ -14,22 +14,24 @@ towns = list()
 for i in range(len(splittxt)):
     try:
         addressidx = splittxt[i].index("Address")
-        style = splittxt[i].index("Rms")
-        if addressidx > style:
-            style = splittxt[i].index("List Ofc")
+        style = splittxt[i].index("Presented By")
     except ValueError:
         break
     textrange = splittxt[i][addressidx:style]
 
     adrange = textrange.splitlines()
-    rangeidx = adrange.index("Address")
-    stopidx = adrange.index('')
+
+    try:
+        rangeidx = adrange.index("Address")
+        stopidx = adrange.index('')
+    except ValueError:
+        continue
     
     for j in adrange[rangeidx:stopidx]:
         if j == "Address":
              continue
         streetad.append(j)
-        if j.find(" ") == -1:
+        if j.find(" ") == -1 or len(j) < 6:
             index = streetad.index(j)
             streetad[index-1] = streetad[index-1] + j
             streetad.pop(index)
@@ -37,16 +39,17 @@ for i in range(len(splittxt)):
 for i in range(len(splittxt)):
     try:
         addressidx = splittxt[i].index("Town")
-        style = splittxt[i].index("Rms")
-        if addressidx > style:
-            style = splittxt[i].index("List Ofc")
+        style = splittxt[i].index("Presented By")
     except ValueError:
         break
     textrange = splittxt[i][addressidx:style]
 
     adrange = textrange.splitlines()
-    rangeidx = adrange.index("Town")
-    stopidx = adrange.index('')
+    try:
+        rangeidx = adrange.index("Town")
+        stopidx = adrange.index('')
+    except ValueError:
+        continue
     
     for j in adrange[rangeidx:stopidx]:
         if j == "Town":
@@ -55,6 +58,8 @@ for i in range(len(splittxt)):
 print(streetad)
 print(towns)
 with open("test.txt","w") as testing:
+    print(len(towns))
+    print(len(streetad))
     for i in range(len(streetad)):
         testing.write(streetad[i])
         testing.write(" ")
